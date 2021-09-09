@@ -139,7 +139,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Controller.cpp" />
+    <ClCompile Include="CreateModel.cpp" />
+    <ClCompile Include="CreateView.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MainModel.cpp" />
+    <ClCompile Include="MainView.cpp" />
+    <ClCompile Include="String.cpp" />
+    <ClCompile Include="TableModel.cpp" />
+    <ClCompile Include="TableView.cpp" />
+    <ClCompile Include="Util.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Commands.h" />
+    <ClInclude Include="Controller.h" />
+    <ClInclude Include="CreateModel.h" />
+    <ClInclude Include="CreateView.h" />
+    <ClInclude Include="MainModel.h" />
+    <ClInclude Include="MainView.h" />
+    <ClInclude Include="String.h" />
+    <ClInclude Include="Table.h" />
+    <ClInclude Include="TableModel.h" />
+    <ClInclude Include="TableView.h" />
+    <ClInclude Include="Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
