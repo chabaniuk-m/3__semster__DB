@@ -7,15 +7,17 @@
 class Controller;
 class MainView
 {
-	String* folderPath = new String("database\\");
-	int length = 9;
+	String* currentDirectory = new String("\\Users\\Admin\\Desktop\\database\\");
 	Controller* controller;
 
 public:
-	void setController(Controller* contr) { controller = contr; }
 	void begin();
+	void setController(Controller* contr) { controller = contr; }
+	String* getCurrDirectory() { return currentDirectory->copy(); }
 	void askForCommand();
 	void showCorrectMainCommands();
+	void goToParentDirectory();
+	void goToChildDirectory(String* folerName);
 
 };
 

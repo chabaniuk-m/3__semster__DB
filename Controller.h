@@ -28,16 +28,16 @@ public:
 private:
 	/*
 	* Main commands:
-	* - create table [tableName] - create table in the current folderPath
-	* - create folderPath [folderName] - create folderPath in the current folderPath and go in it
-	* - delete table [tableName] - delete the table in the current folderPath if exists
-	*	otherwise print message "There is no such a table in current folderPath"
-	* - delete folderPath - delete folderPath if present and empty, otherwise..
+	* - create table [tableName] - create table in the current currentDirectory
+	* - create currentDirectory [folderName] - create currentDirectory in the current currentDirectory and go in it
+	* - delete table [tableName] - delete the table in the current currentDirectory if exists
+	*	otherwise print message "There is no such a table in current currentDirectory"
+	* - delete currentDirectory - delete currentDirectory if present and empty, otherwise..
 	* - move [tableName] - change the table's location if there are at least one nested folder
-	* - open folderPath [folderName] - opens a folderPath and appends it to MainView::folderPath
+	* - open currentDirectory [folderName] - opens a currentDirectory and appends it to MainView::currentDirectory
 	* - open table [tableName] - opens the table if possible and start working with it
-	* - close - close the current folderPath and go back to the parent folderPath,
-	*	if than MainView::folderPath is empty ends the program
+	* - close - close the current currentDirectory and go back to the parent currentDirectory,
+	*	if than MainView::currentDirectory is empty ends the program
 	* - exit - ends the program
 	*/
 	int getCommandID(const String const* command);

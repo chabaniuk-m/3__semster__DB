@@ -1,4 +1,5 @@
 #include "String.h"
+#include "Util.h"
 
 String::String() :
 	String(32) {}
@@ -22,6 +23,17 @@ String::String(const String const* other) :
 String::~String()
 {
 	delete[length + 1] text;
+}
+
+String* String::copy() const
+{
+	String* result = new String(0);
+	delete[1] result->text;
+
+	result->text = ucopy(this->text, length);
+	result->length = length;
+
+	return result;
 }
 
 String* String::substr(int offset, int to) const
@@ -82,26 +94,37 @@ String** String::split(int& len, char delim) const
 	return parts;
 }
 
-char* String::getData()
+int String::lastIndexOf(char c) const
 {
-	return text;
+	for (int i = length - 1; i >= 0; i--)
+	{
+		if (text[i] == c) return i;
+	}
+
+	return NPOS;
 }
 
-void String::append(const char* other)
+char* String::getData() const { return ucopy(text); }
+
+String* String::append(const char* other)
 {
-	if (other == nullptr || other[0] == '\0') return;
+	if (other == nullptr || other[0] == '\0') return this;
 
 	int len = 0;
 	for (; other[len] != '\0'; ++len);
 
 	append(other, len);
+
+	return this;
 }
 
-void String::append(const String const* other)
+String* String::append(const String const* other)
 {
-	if (other == nullptr) return;
+	if (other == nullptr) return this;
 
 	append(other->text, other->length);
+
+	return this;
 }
 
 bool String::equals(String* other) const
@@ -132,30 +155,30 @@ int String::compareTo(const char* str, bool caseSensetive) const
 		int i = 0;
 		for (; text[i] != '\0'; ++i)
 		{
-			if (str[i] == '\0') return 1;
+			if (str[i] == '\0') return GREATER;
 
 			if (text[i] != str[i])
 				return text[i] - str[i];
 		}
-		if (str[i] != '\0') return -1;
+		if (str[i] != '\0') return LESS;
 
-		return 0;
+		return EQUALS;
 	}
 	else
 	{
 		int i = 0;
 		for (; text[i] != '\0'; ++i)
 		{
-			if (str[i] == '\0') return 1;
+			if (str[i] == '\0') return GREATER;
 
 			char a = (isUpperLetter(text[i])) ? toLower(text[i]) : text[i];
 			char b = (isUpperLetter(str[i])) ? toLower(str[i]) : str[i];
 
 			if (a != b) return a - b;
 		}
-		if (str[i] != '\0') return -1;
+		if (str[i] != '\0') return LESS;
 
-		return 0;
+		return EQUALS;
 	}
 }
 
@@ -185,12 +208,64 @@ bool String::startsWith(const char* str, bool caseSensetive) const
 	return true;
 }
 
+bool String::endsWith(const char* str, bool caseSensetive) const
+{
+	int len = 0;
+	for (; str[len] != '\0'; ++len);
+
+	if (length < len) return false;
+
+	for (int i = len - 1, j = length - 1; i >= 0; --i, --j)
+	{
+		char a = str[i];
+		char b = text[j];
+		
+		if (!caseSensetive)
+		{
+			if (isUpperLetter(a)) a = toLower(a);
+			if (isUpperLetter(b)) b = toLower(b);
+		}
+
+		if (a != b) return false;
+	}
+
+	return true;
+}
+
 bool String::empty() const
 {
 	return length == 0;
 }
 
 char String::at(int index) const { return this->operator[](index); }
+
+String* String::operator+(String* rhs) const
+{
+	const int len = length + rhs->length;
+	String* result = new String(len);
+	result->length = len;
+
+	int i = 0;
+	for (; i < length; i++)
+	{
+		result->text[i] = text[i];
+	}
+	for (int j = 0; j < rhs->length; ++j, ++i)
+	{
+		result->text[i] = rhs->text[j];
+	}
+
+	return result;
+}
+
+String* String::operator+(const char* rhs) const
+{
+	String* temp = new String(rhs);
+	String* res = *this + temp;
+	delete temp;
+
+	return res;
+}
 
 char String::operator[](int index) const
 {

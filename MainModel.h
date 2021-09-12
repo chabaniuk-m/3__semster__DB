@@ -10,12 +10,12 @@ class MainModel
 	MainView* mainView;
 
 public:
-	void setMainView(MainView* view) { mainView = view; }
+	void setMain(MainView* view) { mainView = view; }
 	void askForCommand();
-	void deleteTable(String* tableName);
-	void deleteFolder(String* folderName);
+	void deleteTable(String* name);
+	void deleteFolder(String* name);
 	void goOut();
-	void goIn(String* folderName);
+	void goIn(String* name);
 	void closeProgram();
 };
 
