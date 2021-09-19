@@ -1,5 +1,21 @@
 #include "Util.h"
+#include "Table.h"
+#include "String.h"
+#include "MainView.h"
+
+#include <Windows.h>
 #include <string>
+#include <assert.h>
+
+const char* defaultPath = "\\Users\\Admin\\Desktop\\database\\";
+extern const int databaseIndex = 21;
+extern const char* forbiddenSymbols = "<>:\"/\\|\?*";
+const int EXISTS = 00;
+const int WRITEABLE = 02;
+const int READABLE = 04;
+const int WRITEABLE_AND_READABLE = 06;
+const int ERR_LOADING_TABLE = 100;
+const int ERR_NOT_FOUND = 101;
 
 void print(const char* str)
 {
@@ -20,16 +36,21 @@ bool userWantToDoIt()
 
 	if (answer->compareTo("yes", false) == String::EQUALS)
 	{
-		delete[size + 1] reply;
+		delete[] reply;
 		delete answer;
 		return true;
 	}
 	else
 	{
-		delete[size + 1] reply;
+		delete[] reply;
 		delete answer;
 		return false;
 	}
+}
+
+const String* currentDirectory()
+{
+	return MainView::getObj()->getCurrDirectory();
 }
 
 char* ucopy(const char* str)
@@ -56,19 +77,17 @@ bool existsDir(String* path)
 {
 	if (path == nullptr) return false;
 
+	if (!path->endsWith("\\"))
+	{
+		path->append("\\");
+	}
+
 	if (_access_s(path->getData(), EXISTS) == 0)
 	{
-		if (!path->endsWith("\\"))
-		{
-			path->append("\\");
-		}
-
 		return true;
 	}
-	else
-	{
-		return false;
-	}
+
+	return false;
 }
 
 //full path like
@@ -77,26 +96,83 @@ bool existsDir(String* path)
 bool existsFile(String * path)
 {
 	if (path == nullptr) return false;
+	
+	if (!path->contains('.'))
+	{
+		path->append(".txt");
+	}
 
-	if (!path->endsWith(".txt"))
+	if (_access_s(path->getData(), EXISTS) == 0)
 	{
-		if (_access_s((*path + ".txt")->getData(), EXISTS) == 0)
-		{
-			path->append(".txt");
-			return true;
-		}
-		
-		return false;
+		return true;
 	}
-	else
-	{
-		if (_access_s(path->getData(), EXISTS) == 0) return true;
 		
-		return false;
-	}
+	return false;
 }
 
-FILE* uopenFile(String* path, const char* mode, int& err)
+bool correctFilePath(const String* path, bool onlyName)
+{
+	if (path == nullptr) return false;
+
+	const String* name = onlyName ? path : getFileName(path);
+
+	for (int i = 0; forbiddenSymbols[i] != '\0'; ++i)
+	{
+		if (name->contains(forbiddenSymbols[i]))
+		{
+			return false;
+		}
+	}
+
+	if (name->count('.') > 1)
+	{
+		if (!onlyName) delete name;
+
+		return false;
+	}
+
+	int index = name->lastIndexOf('.');
+
+	if (index == String::NPOS)
+	{
+		if (!onlyName) delete name;
+
+		return true;
+	}
+	else if (index == 0)
+	{
+		if (!onlyName) delete name;
+
+		return false;
+	}
+
+	bool extentionAbsent = true;
+
+	for (int i = index + 1; i < name->getLength(); ++i)
+	{
+		extentionAbsent = false;
+
+		if (!isalpha(name->at(i)))
+		{
+			if (!onlyName) delete name;
+
+			return false;
+		}
+	}
+
+	if (extentionAbsent)
+	{
+		if (!onlyName) delete name;
+
+		return false;
+	}
+
+	if (!onlyName) delete name;
+
+	return true;
+}
+
+FILE* uopenFile(const String* path, const char* mode, int& err)
 {
 	FILE* fp;
 	err = fopen_s(&fp, path->getData(), mode);
@@ -104,9 +180,34 @@ FILE* uopenFile(String* path, const char* mode, int& err)
 	return fp;
 }
 
-int ucreateDir(String* path)
+int ucreateDir(const String* path)
 {
 	return _mkdir(path->getData());
+}
+
+void showFileNameForbiddens()
+{
+	println("- empty name");
+	println(" - more than 1 symbol \'.\'");
+	println(" - after '.' symbol except letters");
+	println(" - after '.' no symbols");
+	println(" - the following symbols:   ");
+
+	for (int i = 0; forbiddenSymbols[i] != '\0'; ++i)
+	{
+		printf("%c ", forbiddenSymbols[i]);
+	}
+
+	println("");
+}
+
+String* getParentDirectory(String* path)
+{
+	int index = path->getLength() - 2;
+
+	for (; (*path)[index] != '\\';) --index;
+
+	return path->substr(0, index + 1);
 }
 
 error_t readInt(int& a)
@@ -118,17 +219,28 @@ error_t readInt(int& a)
 
 	if (err)
 	{
-		delete[size] buff;
+		delete[] buff;
 
 		return err;
 	}
 	else
 	{
 		a = parseInt(buff);
-		delete[size] buff;
+		delete[] buff;
 
 		return err;
 	}
+}
+
+String* getFileName(const String* path)
+{
+	if (!path->contains('\\')) return path->copy();
+
+	int i = path->getLength() - 2;
+
+	for (; path->at(i) != '\\'; --i);
+
+	return path->substr(i + 1);
 }
 
 error_t isInt(const char* str)
@@ -318,7 +430,7 @@ long long parseLong(const char* str)
 	if (str[i] == '-')
 	{
 		++i;
-		negative = 1;
+		negative = true;
 	}
 
 
@@ -340,14 +452,14 @@ error_t readLong(long long& a)
 
 	if (err)
 	{
-		delete[size] buff;
+		delete[] buff;
 
 		return err;
 	}
 	else
 	{
 		a = parseLong(buff);
-		delete[size] buff;
+		delete[] buff;
 
 		return err;
 	}
@@ -471,17 +583,25 @@ error_t readDouble(double& a)
 	int err = isDouble(buff);
 	if (err)
 	{
-		delete[size] buff;
+		delete[] buff;
 
 		return err;
 	}
 	else
 	{
 		a = parseDouble(buff);
-		delete[size] buff;
+		delete[] buff;
 
 		return err;
 	}
+}
+
+const char* readString(int len)
+{
+	char* buff = new char[len + 1]();
+	assert(gets_s(buff, len + 1) && "Problem reading the line of text");
+
+	return buff;
 }
 
 const char* toCString(int a)
@@ -499,3 +619,28 @@ const char* toCString(long long a)
 	return ucopy(std::to_string(a).c_str());
 }
 
+const char* toCString(char c)
+{
+	return new char[2]{ c, '\0' };
+}
+
+#include <filesystem>
+void printFolderContent(const String* fpath)
+{
+	bool empty = true;
+	for (const auto& entry : std::filesystem::directory_iterator(fpath->getData()))
+	{
+		std::string str = entry.path().string();
+
+		int end = str.length();
+		int beg = end - 1;
+		for (; str[beg] != '\\'; --beg) {}
+
+		//std::cout << str.substr(beg + 1, end) << std::endl;
+		println(str.substr(beg + 1, end).c_str());
+
+		empty = false;
+	}
+
+	if (empty) println("<empty>");
+}

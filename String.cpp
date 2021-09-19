@@ -1,6 +1,58 @@
 #include "String.h"
 #include "Util.h"
 
+
+String* String::join(char delim, String* arr[], const int count)
+{
+	int totalLength = count - 1;
+
+	for (int i = 0; i < count; i++)
+	{
+		totalLength += arr[i]->length;
+	}
+
+	String* res = new String(totalLength);
+	res->length = totalLength;
+
+	int i = 0;
+
+	for (int j = 0; j < count; j++)
+	{
+		String* curr = arr[j];
+		for (int k = 0; k < curr->length; ++k, ++i)
+		{
+			(*res)[i] = (*curr)[k];
+		}
+		if (i < totalLength)
+		{
+			(*res)[i++] = delim;
+		}
+	}
+
+	return res;
+}
+
+bool String::equals(const char* a, const char* b)
+{
+	int i = 0;
+
+	while (true)
+	{
+		if (a[i] != b[i])
+		{
+			return false;
+		}
+		else if (a[i] == '\0')
+		{
+			break;
+		}
+
+		++i;
+	}
+
+	return true;
+}
+
 String::String() :
 	String(32) {}
 
@@ -17,18 +69,18 @@ String::String(const char* str)
 	}
 }
 
-String::String(const String const* other) :
+String::String(const String* other) :
 	String(other->text) {}
 
 String::~String()
 {
-	delete[length + 1] text;
+	delete[] text;
 }
 
 String* String::copy() const
 {
 	String* result = new String(0);
-	delete[1] result->text;
+	delete[] result->text;
 
 	result->text = ucopy(this->text, length);
 	result->length = length;
@@ -67,7 +119,7 @@ String** String::split(int& len, char delim) const
 		}
 	}
 
-	String** parts = new String*[len = numberOfDelimiters + 1];
+	String** parts = new String * [len = numberOfDelimiters + 1]();
 
 	int offset = 0;
 	int end = length;
@@ -75,7 +127,7 @@ String** String::split(int& len, char delim) const
 
 	do
 	{
-		for (int j = offset + 1; j < length; j++)
+		for (int j = offset; j < length; j++)
 		{
 			if (text[j] == delim)
 			{
@@ -88,8 +140,9 @@ String** String::split(int& len, char delim) const
 
 		offset = end + 1;
 		end = length;
-	} 
-	while (offset < length);
+	} while (offset < length);
+
+	if (parts[len - 1] == nullptr) parts[len - 1] = new String("");
 
 	return parts;
 }
@@ -104,7 +157,42 @@ int String::lastIndexOf(char c) const
 	return NPOS;
 }
 
+int String::indexOf(const char* str) const
+{
+	for (int i = 0; i < length; i++)
+	{
+		int beg = i;
+		int j = 0;
+		while (i < length && text[i] == str[j])
+		{
+			++i;
+			++j;
+			if (str[j] == '\0')
+			{
+				return beg;
+			}
+		}
+	}
+
+	return NPOS;
+}
+
 char* String::getData() const { return ucopy(text); }
+
+int String::count(char c) const
+{
+	int count = 0;
+
+	for (int i = 0; i < length; i++)
+	{
+		if (text[i] == c)
+		{
+			++count;
+		}
+	}
+
+	return count;
+}
 
 String* String::append(const char* other)
 {
@@ -118,7 +206,7 @@ String* String::append(const char* other)
 	return this;
 }
 
-String* String::append(const String const* other)
+String* String::append(const String* other)
 {
 	if (other == nullptr) return this;
 
@@ -127,20 +215,51 @@ String* String::append(const String const* other)
 	return this;
 }
 
-bool String::equals(String* other) const
+bool String::equals(const String* other, bool reverse) const
 {
-	if (length != other->length)
+	return equals(text, other->text, reverse);
+}
+
+bool String::equals(const char* str, bool reverse) const
+{
+	int len = 0;
+	for (; str[len] != '\0'; ++len);
+	
+	if (len != length)
+	{
 		return false;
+	}
 
-	return equals(text, other->text);
+	return equals(text, str, reverse);						//length is the same
 }
 
-bool String::equals(const char* str) const
+bool String::contains(char c, bool reverse) const
 {
-	return equals(text, str);
+	if (reverse)
+	{
+		for (int i = length - 1; i >= 0; i--)
+		{
+			if (text[i] == c)
+			{
+				return true;
+			}
+		}
+	}
+	else
+	{
+		for (int i = 0; i < length; i++)
+		{
+			if (text[i] == c)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 
-int String::compareTo(String* other, bool caseSensetive) const
+int String::compareTo(const String* other, bool caseSensetive) const
 {
 	if (other == nullptr)
 		return 1;
@@ -187,7 +306,7 @@ bool String::startsWith(const char* str, bool caseSensetive) const
 	if (str == nullptr) return true;
 
 	int i = 0;
-	for (; i < length; ++i)	
+	for (; i < length; ++i)
 	{
 		if (str[i] == '\0') return true;
 
@@ -202,9 +321,9 @@ bool String::startsWith(const char* str, bool caseSensetive) const
 			return false;
 		}
 	}
-	
+
 	if (str[i] != '\0') return false;
-	
+
 	return true;
 }
 
@@ -219,7 +338,7 @@ bool String::endsWith(const char* str, bool caseSensetive) const
 	{
 		char a = str[i];
 		char b = text[j];
-		
+
 		if (!caseSensetive)
 		{
 			if (isUpperLetter(a)) a = toLower(a);
@@ -239,7 +358,12 @@ bool String::empty() const
 
 char String::at(int index) const { return this->operator[](index); }
 
-String* String::operator+(String* rhs) const
+char& String::at(int index)
+{
+	return this->operator[](index);
+}
+
+String* String::operator+(const String* rhs) const
 {
 	const int len = length + rhs->length;
 	String* result = new String(len);
@@ -269,7 +393,7 @@ String* String::operator+(const char* rhs) const
 
 char String::operator[](int index) const
 {
-	if (!checkBounds(index))
+	if (outOfBounds(index))
 		return '\0';
 
 	return text[index];
@@ -277,10 +401,9 @@ char String::operator[](int index) const
 
 char& String::operator[](int index)
 {
-	if (!checkBounds(index))
+	if (outOfBounds(index))
 	{
-		char empty = *new char('\0');
-		return empty;
+		return *new char('\0');
 	}
 
 	return text[index];
@@ -306,26 +429,36 @@ String::String(int length)
 	this->length = 0;
 }
 
-bool String::checkBounds(int index) const
+bool String::outOfBounds(int index) const
 {
 	if (index < 0 || index >= length)
-		return false;
+		return true;
 
-	return true;
+	return false;
 }
 
-bool String::equals(const char* s1, const char* s2) const
+bool String::equals(const char* s1, const char* s2, bool reverse) const
 {
-	int l1 = 0;
-	for (; s1[l1] != '\0'; ++l1);
-	int l2 = 0;
-	for (; s2[l2] != '\0'; ++l2);
-
-	if (l1 != l2) return false;
-
-	for (int i = 0; i < l1; ++i)
-		if (s1[i] != s2[i])
-			return false;
+	if (reverse)
+	{
+		for (int i = length - 1; i >= 0; i--)
+		{
+			if (s1[i] != s2[i])
+			{
+				return false;
+			}
+		}
+	}
+	else
+	{
+		for (int i = 0; i < length; ++i)
+		{
+			if (s1[i] != s2[i])
+			{
+				return false;
+			}
+		}
+	}
 
 	return true;
 }
@@ -351,7 +484,7 @@ void String::append(const char* other, const int len)
 	for (int j = 0; i < newLength; ++i, ++j)
 		result[i] = other[j];
 
-	delete[length] text;
+	delete[] text;
 	text = result;
 	length = newLength;
 }

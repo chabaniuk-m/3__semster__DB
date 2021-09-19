@@ -1,46 +1,71 @@
 #ifndef CONTROLLER
 #define CONTROLLER
 
-#include "Util.h"
-#include "MainModel.h"
-#include "CreateModel.h"
-#include "TableModel.h"
-#include "Commands.h"
-
 class MainModel;
+class MainView;
 class CreateModel;
 class TableModel;
 class String;
+
+#include "View.h"
+
 class Controller
 {
+	template<class T>
+	friend class View;
+	friend class MainView;
+	friend class TableView;
+	friend class CreateView;
+
+public:
+
+	static Controller* getObj()
+	{
+		return obj ? obj : (obj = new Controller());
+	}
+
+private:
+
 	MainModel* mainModel;
 	CreateModel* createModel;
 	TableModel* tableModel;
 
-public:
-	void setMainModel(MainModel* model) { mainModel = model; }
-	void setCreateModel(CreateModel* model) { createModel = model; }
-	void setTableModel(TableModel* model) { tableModel = model; }
-	void getMainCommand();
-	//executes concrete command
-	void execute(int command, const String const* info);
 
+	//*************methods for views objects**************//
+
+	template<class T>
+	void getCommand(View<T>* view) {}
+
+	void getMainCommand();
+
+	void getCreateCommand();
+
+	void getTableCommand();
+
+	//executes concrete command
+	void execute(const int command, const String* info);
+
+
+	//******************private methods****************//
+
+	void setAll(MainView* view);
+
+	int getCommandID(const String* command);
+
+	bool isMainCommand(int command);
+
+	bool isCreateCommand(int command);
+
+	bool isTableCommand(int command);
+
+//Singleton
 private:
-	/*
-	* Main commands:
-	* - create table [tableName] - create table in the current currentDirectory
-	* - create currentDirectory [folderName] - create currentDirectory in the current currentDirectory and go in it
-	* - delete table [tableName] - delete the table in the current currentDirectory if exists
-	*	otherwise print message "There is no such a table in current currentDirectory"
-	* - delete currentDirectory - delete currentDirectory if present and empty, otherwise..
-	* - move [tableName] - change the table's location if there are at least one nested folder
-	* - open currentDirectory [folderName] - opens a currentDirectory and appends it to MainView::currentDirectory
-	* - open table [tableName] - opens the table if possible and start working with it
-	* - close - close the current currentDirectory and go back to the parent currentDirectory,
-	*	if than MainView::currentDirectory is empty ends the program
-	* - exit - ends the program
-	*/
-	int getCommandID(const String const* command);
+
+	static Controller* obj;
+
+	Controller();
+
+	~Controller() {}
 };
 
 #endif // !CONTROLLER

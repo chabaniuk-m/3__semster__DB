@@ -31,6 +31,18 @@
     <Filter Include="Source Files\util">
       <UniqueIdentifier>{c3614dfc-b707-47c2-9c73-6bcc85f8e28b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\data">
+      <UniqueIdentifier>{065ac6e5-3471-481b-b8ba-425b9e08398a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\data">
+      <UniqueIdentifier>{5028ea89-b782-4472-81ab-c3562a74c2ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\util\sort">
+      <UniqueIdentifier>{8f3e1943-15ec-43cd-ac3a-6ffdf291348a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\util\search">
+      <UniqueIdentifier>{9b2a558d-95ef-4927-8b0f-14bc4fc48f45}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -63,6 +75,21 @@
     <ClCompile Include="Util.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
+    <ClCompile Include="TableList.cpp">
+      <Filter>Source Files\data</Filter>
+    </ClCompile>
+    <ClCompile Include="TableManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Table.cpp">
+      <Filter>Source Files\data</Filter>
+    </ClCompile>
+    <ClCompile Include="Singleton.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="View.cpp">
+      <Filter>Source Files\view</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainView.h">
@@ -86,9 +113,6 @@
     <ClInclude Include="TableModel.h">
       <Filter>Header Files\model</Filter>
     </ClInclude>
-    <ClInclude Include="Table.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="String.h">
       <Filter>Header Files\util</Filter>
     </ClInclude>
@@ -97,6 +121,39 @@
     </ClInclude>
     <ClInclude Include="Commands.h">
       <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="TableManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Table.h">
+      <Filter>Header Files\data</Filter>
+    </ClInclude>
+    <ClInclude Include="TableList.h">
+      <Filter>Header Files\data</Filter>
+    </ClInclude>
+    <ClInclude Include="Search.h">
+      <Filter>Header Files\util\search</Filter>
+    </ClInclude>
+    <ClInclude Include="Sort.h">
+      <Filter>Header Files\util\sort</Filter>
+    </ClInclude>
+    <ClInclude Include="Header.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Stack.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="ArrayList.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="Singleton.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="View.h">
+      <Filter>Header Files\view</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Header Files\model</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
